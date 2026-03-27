@@ -1,5 +1,6 @@
 from rest_framework import permissions, status
 from rest_framework.decorators import action
+from rest_framework.filters import OrderingFilter
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
@@ -11,6 +12,10 @@ from comments.serializers import CommentDetailSerializer, CommentSerializer, Upd
 
 class CommentViewSet(ModelViewSet):
     """ViewSet for creating, retrieving, updating, deleting and replying to comments."""
+
+    filter_backends = [OrderingFilter]
+    ordering_fields = ["username", "email", "created_at"]
+    ordering = ["-created_at"]
 
     def get_queryset(self):
         if self.action == "list":
