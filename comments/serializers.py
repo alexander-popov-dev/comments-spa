@@ -125,3 +125,11 @@ class UpdateCommentSerializer(serializers.ModelSerializer):
         """Validate XHTML structure and allowed HTML tags."""
         validate_xhtml_structure(value=value)
         return validate_html_tags(value=value)
+
+
+class CommentPreviewSerializer(serializers.Serializer):
+    comment = serializers.CharField()
+
+    def validate_comment(self, value):
+        validate_xhtml_structure(value=value)
+        return validate_html_tags(value=value)
