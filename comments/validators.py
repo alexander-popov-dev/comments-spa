@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import bleach
 from django.conf import settings
 from lxml import etree
@@ -30,3 +32,30 @@ def validate_xhtml_structure(value: str) -> None:
 
     except etree.XMLSyntaxError as e:
         raise serializers.ValidationError(f"Invalid XHTML: {e.msg}. Make sure all tags are properly closed and nested.")
+
+
+def validate_image_file_format(image_file) -> None:
+    """Validates that the uploaded image has an allowed format (JPG, GIF, PNG)."""
+
+    if not image_file:
+        return
+
+    extension = Path(image_file.name).suffix.lstrip(".").lower()
+
+    if extension not in ["jpg", "jpeg", "gif", "png"]:
+        raise serializers.ValidationError("Invalid image file format. Allowed: JPG, GIF, PNG.")
+
+
+def validate_text_file_size(text_file) -> None:
+    """Validates text file format and size."""
+
+    if not text_file:
+        return
+
+    extension = Path(text_file.name).suffix.lstrip(".").lower()
+
+    if extension != "txt":
+        raise serializers.ValidationError("Invalid text file format. Allowed: TXT.")
+
+    if text_file.size > 100 * 1024:
+        raise serializers.ValidationError("Text file size must not exceed 100 KB.")
