@@ -1,4 +1,5 @@
 import io
+from pathlib import Path
 
 from django.core.files.base import ContentFile
 from PIL import Image
@@ -15,5 +16,5 @@ class CommentService:
             fmt = img.format or "JPEG"
             img.save(output, format=fmt)
             output.seek(0)
-            return ContentFile(output.read(), name=image.name)
+            return ContentFile(output.read(), name=Path(image.name).name)
         return image
