@@ -20,29 +20,30 @@ class CommentViewSet(ModelViewSet):
     def get_queryset(self):
         if self.action == "list":
             return Comment.objects.filter(parent_comment=None)
+
         return Comment.objects.all()
 
     def get_permissions(self):
         """Allow only authenticated owners to update or delete comments."""
         if self.action in ["update", "partial_update", "destroy"]:
             return [permissions.IsAuthenticated(), IsOwner()]
+
         return [permissions.AllowAny()]
 
     def get_serializer_class(self):
         """Use a restricted serializer for update actions."""
         if self.action in ["update", "partial_update"]:
             return UpdateCommentSerializer
+
         if self.action == "retrieve":
             return CommentDetailSerializer
+
         return CommentSerializer
 
     def perform_create(self, serializer):
         """Attach authenticated user data on comment creation."""
-        user = self.request.user if self.request.user.is_authenticated else None
-        extra = {}
-        if user:
-            extra = {"user": user, "username": user.username, "email": user.email}
-        serializer.save(**extra)
+        user_data = self._attach_user(user=self.request.user)
+        serializer.save(**user_data)
 
     @action(detail=True, methods=["post"])
     def reply(self, request, pk=None):
@@ -50,11 +51,13 @@ class CommentViewSet(ModelViewSet):
         get_object_or_404(Comment, pk=pk)
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        user = request.user if request.user.is_authenticated else None
-        extra = {"parent_comment_id": pk}
-
-        if user:
-            extra.update({"user": user, "username": user.username, "email": user.email})
-        serializer.save(**extra)
+        user_data = self._attach_user(user=self.request.user)
+        serializer.save(parent_comment_id=pk, **user_data)
 
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    def _attach_user(self, user):
+        if user and user.is_authenticated:
+            return {"user": user, "username": user.username, "email": user.email}
+
+        return {}
