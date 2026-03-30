@@ -34,7 +34,9 @@ class JWTAuth(BaseAuth):
     def logout(self, credential: str) -> None:
         """Blacklist the given refresh token."""
         try:
-            RefreshToken(credential).blacklist()
+            token = RefreshToken(credential)
+            token.blacklist()
+            logger.info("User logged out, token blacklisted")
         except JWTTokenError:
             raise InvalidTokenError("Invalid token")
 
