@@ -1,8 +1,8 @@
 COMPOSE = docker compose -f deploy/docker-compose.yaml
-COMPOSE_PROD = $(COMPOSE) --env-file .env
-COMPOSE_DEV = APP_ENV_FILE=.env.dev $(COMPOSE) --env-file .env.dev -p comments-spa-dev
+COMPOSE_PROD = $(COMPOSE) --env-file backend/.env
+COMPOSE_DEV = APP_ENV_FILE=.env.dev $(COMPOSE) --env-file backend/.env.dev -p comments-spa-dev
 
-.PHONY: up-prod up-dev down-prod down-dev logs-prod logs-dev
+.PHONY: up-prod up-dev down-prod down-dev logs-prod logs-dev run-frontend build-frontend
 
 up-prod:
 	$(COMPOSE_PROD) up -d
