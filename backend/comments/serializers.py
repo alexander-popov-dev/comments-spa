@@ -1,6 +1,7 @@
 from django.core.validators import RegexValidator
 from rest_framework import serializers
 
+from comments.captcha import CaptchaService
 from comments.models import Comment
 from comments.validators import (
     validate_html_tags,
@@ -20,6 +21,8 @@ class CommentSerializer(serializers.ModelSerializer):
         validators=[RegexValidator(regex=r"^[a-zA-Z0-9]+$", message="Username must contain only letters and numbers.")],
     )
     replies_count = serializers.IntegerField(read_only=True)
+    captcha_key = serializers.CharField(write_only=True, required=False)
+    captcha_value = serializers.CharField(write_only=True, required=False)
 
     class Meta:
         model = Comment
@@ -36,6 +39,8 @@ class CommentSerializer(serializers.ModelSerializer):
             "replies_count",
             "created_at",
             "updated_at",
+            "captcha_key",
+            "captcha_value",
         ]
         extra_kwargs = {
             "user": {"read_only": True},
@@ -45,7 +50,7 @@ class CommentSerializer(serializers.ModelSerializer):
         }
 
     def validate(self, attrs):
-        """Require username and email for anonymous users.
+        """Require username, email and captcha for anonymous users.
         Disallow attaching both image and text file simultaneously."""
 
         request = self.context.get("request")
@@ -56,6 +61,13 @@ class CommentSerializer(serializers.ModelSerializer):
 
             if not attrs.get("email"):
                 raise serializers.ValidationError({"email": "This field is required."})
+
+            key = attrs.pop("captcha_key", None)
+            value = attrs.pop("captcha_value", None)
+            CaptchaService.validate(key=key, value=value)
+        else:
+            attrs.pop("captcha_key", None)
+            attrs.pop("captcha_value", None)
 
         if attrs.get("image_file") and attrs.get("text_file"):
             raise serializers.ValidationError("You can attach either an image or a text file, not both.")
@@ -82,12 +94,17 @@ class CommentDetailSerializer(serializers.ModelSerializer):
     """Serializer for retrieving a single comment with full reply tree."""
 
     replies = serializers.SerializerMethodField()
+    replies_count = serializers.SerializerMethodField()
 
     def get_replies(self, obj):
         """Return recursively serialized replies ordered by creation date."""
         return CommentDetailSerializer(
             obj.replies.prefetch_related("replies").order_by("created_at").all(), many=True
         ).data
+
+    def get_replies_count(self, obj):
+        """Return total number of direct replies."""
+        return obj.replies.count()
 
     class Meta:
         model = Comment
@@ -102,6 +119,7 @@ class CommentDetailSerializer(serializers.ModelSerializer):
             "created_at",
             "updated_at",
             "replies",
+            "replies_count",
         ]
 
 
