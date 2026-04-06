@@ -7,8 +7,10 @@ from rest_framework.filters import OrderingFilter
 from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
+from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 
+from comments.captcha import CaptchaService
 from comments.models import Comment
 from comments.permissions import IsOwner
 from comments.serializers import (
@@ -29,6 +31,7 @@ class CommentViewSet(ModelViewSet):
     ordering = ["-created_at"]
 
     def get_queryset(self):
+        """Return top-level comments with reply count for list, all comments otherwise."""
         if self.action == "list":
             return Comment.objects.filter(parent_comment=None).annotate(replies_count=Count("replies"))
 
@@ -81,6 +84,7 @@ class CommentViewSet(ModelViewSet):
 
     @action(detail=False, methods=["post"], permission_classes=[AllowAny])
     def preview(self, request):
+        """Validate and return sanitized comment HTML for preview without saving."""
         serializer = CommentPreviewSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         logger.debug("Comment preview requested by %s", self._user_label())
@@ -88,6 +92,7 @@ class CommentViewSet(ModelViewSet):
         return Response({"comment": serializer.validated_data["comment"]})
 
     def _attach_user(self, user):
+        """Return user fields dict if authenticated, empty dict otherwise."""
         if user and user.is_authenticated:
             return {"user": user, "username": user.username, "email": user.email}
 
@@ -97,3 +102,12 @@ class CommentViewSet(ModelViewSet):
         """Return a loggable user identifier."""
         user = self.request.user
         return user.email if user.is_authenticated else "anonymous"
+
+
+class CaptchaView(APIView):
+    """Generate and return a new CAPTCHA key and image URL."""
+
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        return Response(CaptchaService.generate())
