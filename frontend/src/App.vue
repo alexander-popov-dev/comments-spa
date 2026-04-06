@@ -1,6 +1,8 @@
 <script setup>
-  </script>
+import AppHeader from '@/components/AppHeader.vue'
+</script>
 
-  <template>
-    <RouterView />
-  </template>
+<template>
+  <AppHeader/>
+  <RouterView/>
+</template>
