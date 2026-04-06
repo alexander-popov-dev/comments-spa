@@ -19,14 +19,16 @@ async function logout() {
     <a class="logo" href="/">CommentSPA</a>
 
     <nav class="menu" :class="{ open: menuOpen }">
+
       <template v-if="auth.accessToken">
-      <a>{{ auth.user?.username }}</a>
-      <a @click="logout">Sign Out</a>
-    </template>
-    <template v-else>
-      <a href="/register">Sign Up</a>
-      <a href="/login">Sign In</a>
-    </template>
+        <a>{{ auth.user?.username }}</a>
+        <a @click="logout">Sign Out</a>
+      </template>
+
+      <template v-else>
+        <a href="/register">Sign Up</a>
+        <a href="/login">Sign In</a>
+      </template>
 
     </nav>
 
@@ -35,6 +37,7 @@ async function logout() {
       <span></span>
       <span></span>
     </button>
+
   </div>
 </template>
 
@@ -47,6 +50,7 @@ async function logout() {
   background: var(--surface);
   border-bottom: 1px solid var(--border);
   margin-bottom: 30px;
+  position: relative;
 }
 
 .logo {
@@ -59,16 +63,16 @@ async function logout() {
 .menu {
   display: flex;
   gap: 20px;
+}
 
-  a {
-    color: var(--text);
-    text-decoration: none;
-    font-size: 14px;
+a {
+  color: var(--text);
+  text-decoration: none;
+  font-size: 14px;
+}
 
-    &:hover {
-      color: var(--accent);
-    }
-  }
+&:hover {
+  color: var(--accent);
 }
 
 .burger {
@@ -76,15 +80,15 @@ async function logout() {
   flex-direction: column;
   gap: 5px;
   padding: 4px;
+}
 
-  span {
-    display: block;
-    width: 22px;
-    height: 2px;
-    background: var(--text-h);
-    border-radius: 2px;
-    transition: 0.3s;
-  }
+span {
+  display: block;
+  width: 22px;
+  height: 2px;
+  background: var(--text-h);
+  border-radius: 2px;
+  transition: 0.3s;
 }
 
 @media (max-width: 768px) {
@@ -103,15 +107,10 @@ async function logout() {
     border-bottom: 1px solid var(--border);
     padding: 16px 24px;
     gap: 16px;
-
-    &.open {
-      display: flex;
-    }
   }
 
-  .header {
-    position: relative;
+  .menu.open {
+    display: flex;
   }
 }
-
 </style>
