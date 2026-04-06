@@ -212,3 +212,9 @@ CELERY_RESULT_SERIALIZER = "json"
 # Comment allowed HTML tags and attributes.
 COMMENT_ALLOWED_HTML_TAGS = ["a", "code", "i", "strong"]
 COMMENT_ALLOWED_HTML_ATTRIBUTES = {"a": ["href", "title"]}
+
+# Captcha
+CAPTCHA_IMAGE_SIZE = (180, 50)
+CAPTCHA_FONT_SIZE = 28
+CAPTCHA_LENGTH = 5
+CAPTCHA_FILTER_FUNCTIONS = ("captcha.helpers.post_smooth",)
