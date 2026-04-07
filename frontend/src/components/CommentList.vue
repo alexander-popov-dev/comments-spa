@@ -65,6 +65,7 @@ function createComment() {
           v-for="comment in store.comments"
           :key="comment.id"
           :comment="comment"
+          @refresh="store.fetchComments(store.currentPage)"
       />
     </div>
 
