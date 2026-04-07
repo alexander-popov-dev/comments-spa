@@ -9,7 +9,6 @@ const useCommentsStore = defineStore('comments', () => {
     const currentPage = ref(1)
     const orderField = ref('created_at')
     const orderDir = ref('desc')
-    const newReplyEvent = ref(null)
 
     let socket = null
     let reconnectTimer = null
@@ -27,9 +26,9 @@ const useCommentsStore = defineStore('comments', () => {
                     comments.value.unshift(comment)
                     totalCount.value += 1
                 } else if (comment.parent_comment) {
-                    const idx = comments.value.findIndex(c => c.id === comment.parent_comment)
+                    const parentId = Number(comment.parent_comment)
+                    const idx = comments.value.findIndex(c => c.id === parentId)
                     if (idx !== -1) comments.value[idx] = {...comments.value[idx], replies_count: comments.value[idx].replies_count + 1}
-                    newReplyEvent.value = {parentId: comment.parent_comment, reply: comment}
                 }
             } else if (action === 'updated') {
                 const idx = comments.value.findIndex(c => c.id === comment.id)
@@ -94,6 +93,11 @@ const useCommentsStore = defineStore('comments', () => {
         await api.patch(`/api/v1/comment/${id}/`, data)
     }
 
+    function incrementRepliesCount(commentId) {
+        const idx = comments.value.findIndex(c => c.id === commentId)
+        if (idx !== -1) comments.value[idx] = {...comments.value[idx], replies_count: comments.value[idx].replies_count + 1}
+    }
+
     async function createReply(parentId, data) {
         await api.post(`/api/v1/comment/${parentId}/reply/`, data)
     }
@@ -105,7 +109,6 @@ const useCommentsStore = defineStore('comments', () => {
         currentPage,
         orderField,
         orderDir,
-        newReplyEvent,
         fetchComments,
         fetchReplies,
         setOrdering,
@@ -113,6 +116,7 @@ const useCommentsStore = defineStore('comments', () => {
         deleteComment,
         updateComment,
         createReply,
+        incrementRepliesCount,
         connectWS,
         disconnectWS,
     }
