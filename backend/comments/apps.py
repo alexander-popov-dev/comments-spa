@@ -6,4 +6,4 @@ class CommentsConfig(AppConfig):
     name = "comments"
 
     def ready(self):
-        pass
+        import comments.signals  # noqa: F401

@@ -33,6 +33,20 @@ services:
     networks:
       - comments-spa-network
 
+  comments-spa-frontend:
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: ""
+        VITE_WS_URL: ""
+    container_name: comments-spa-frontend
+    command: sh -c "cp -r /app/dist/. /frontend"
+    volumes:
+      - frontend_dist:/frontend
+    networks:
+      - comments-spa-network
+
   comments-spa-nginx:
     image: nginx:1.25-alpine
     restart: always
@@ -46,11 +60,13 @@ services:
     volumes:
       - ../backend/static:/static
       - ../backend/media:/media
+      - frontend_dist:/frontend
       - ./nginx/nginx.conf.template:/etc/nginx/nginx.conf.template:ro
     ports:
       - ${NGINX_PORT}:80
     depends_on:
       - comments-spa-server
+      - comments-spa-frontend
     networks:
       - comments-spa-network
 
@@ -91,6 +107,7 @@ services:
 volumes:
   comments-spa-volume-postgres:
   comments-spa-volume-redis:
+  frontend_dist:
 
 networks:
   comments-spa-network:

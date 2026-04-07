@@ -9,19 +9,21 @@ from rest_framework import serializers
 def validate_html_tags(value: str) -> str:
     """Allows only whitelisted HTML tags."""
 
+    normalized = value.replace("\r\n", "\n").replace("\r", "\n")
+
     cleaned = bleach.clean(
-        value,
+        normalized,
         tags=settings.COMMENT_ALLOWED_HTML_TAGS,
         attributes=settings.COMMENT_ALLOWED_HTML_ATTRIBUTES,
         strip=True,
     )
 
-    if cleaned != value:
+    if cleaned != normalized:
         raise serializers.ValidationError(
             f"Text contains forbidden HTML tags. Allowed: {settings.COMMENT_ALLOWED_HTML_TAGS}."
         )
 
-    return value
+    return cleaned
 
 
 def validate_xhtml_structure(value: str) -> None:

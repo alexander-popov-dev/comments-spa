@@ -1,7 +1,8 @@
 import logging
-from pathlib import Path
+import os
 
 from celery import shared_task
+from django.core.files.base import ContentFile
 
 from .models import Comment
 from .services import CommentService
@@ -20,10 +21,17 @@ def comment_image_resize_task(comment_id: int):
         logger.warning("Comment %s not found, skipping image resize", comment_id)
         return
 
-    if comment.image_file:
-        resized = CommentService.resize_image(comment.image_file)
-        original_name = Path(comment.image_file.name).name
-        comment.image_file.delete(save=False)
-        comment.image_file.save(original_name, resized, save=False)
-        comment.save(update_fields=["image_file"])
-        logger.info("Image resize task completed for comment %s", comment_id)
+    if not comment.image_file:
+        return
+
+    resized = CommentService.resize_image(comment.image_file)
+    if not isinstance(resized, ContentFile):
+        logger.debug("Image for comment %s is within bounds, skipping replace", comment_id)
+        return
+
+    original_path = comment.image_file.path
+    tmp_path = original_path + ".tmp"
+    with open(tmp_path, "wb") as f:
+        f.write(resized.read())
+    os.replace(tmp_path, original_path)
+    logger.info("Image resize task completed for comment %s", comment_id)
