@@ -21,6 +21,7 @@ class CommentSerializer(serializers.ModelSerializer):
         validators=[RegexValidator(regex=r"^[a-zA-Z0-9]+$", message="Username must contain only letters and numbers.")],
     )
     replies_count = serializers.IntegerField(read_only=True)
+    parent_comment = serializers.IntegerField(source="parent_comment_id", read_only=True, allow_null=True)
     captcha_key = serializers.CharField(write_only=True, required=False)
     captcha_value = serializers.CharField(write_only=True, required=False)
 
