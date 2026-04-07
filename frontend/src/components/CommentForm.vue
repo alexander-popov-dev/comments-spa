@@ -35,7 +35,8 @@ const previewComment = computed(() => ({
   created_at: new Date().toISOString(),
   replies_count: 0,
   image_file: filePreviewUrl.value || null,
-  text_file: file.value?.type === 'text/plain' ? file.value.name : null,
+  text_file: file.value?.type === 'text/plain' ? URL.createObjectURL(file.value) : null,
+  text_file_name: file.value?.type === 'text/plain' ? file.value.name : null,
 }))
 
 const form = ref({
@@ -137,6 +138,9 @@ function clearFile() {
   file.value = null
   filePreviewUrl.value = null
   if (fileInputRef.value) fileInputRef.value.value = ''
+  errors.value.file = null
+  errors.value.text_file = null
+  errors.value.image_file = null
 }
 
 function onFileChange(e) {
@@ -152,6 +156,8 @@ function onFileChange(e) {
   }
 
   errors.value.file = null
+  errors.value.text_file = null
+  errors.value.image_file = null
   file.value = selected
   if (file.value.type !== 'text/plain') {
     filePreviewUrl.value = URL.createObjectURL(file.value)
@@ -206,6 +212,8 @@ async function preview() {
             <button type="button" class="file-remove" @click="clearFile">✕ Remove</button>
           </div>
           <p v-if="errors.file" class="error">{{ errors.file }}</p>
+          <p v-if="errors.text_file" class="error">{{ errors.text_file[0] }}</p>
+          <p v-if="errors.image_file" class="error">{{ errors.image_file[0] }}</p>
           <input v-show="!file" type="file" accept=".jpg,.gif,.png,.txt" @change="onFileChange" ref="fileInputRef"/>
         </template>
       </div>
