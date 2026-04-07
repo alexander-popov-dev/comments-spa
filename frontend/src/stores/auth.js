@@ -39,12 +39,6 @@ export const useAuthStore = defineStore('auth', () => {
     }
 
 
-    async function refresh() {
-        const response = await api.post(`/api/auth/refresh/`, {refresh: refreshToken.value})
-        accessToken.value = response.data.access
-        localStorage.setItem('access', response.data.access)
-    }
-
     async function updateLocalStorage(response) {
         accessToken.value = response.data.access
         refreshToken.value = response.data.refresh
@@ -54,6 +48,6 @@ export const useAuthStore = defineStore('auth', () => {
         localStorage.setItem('email', response.data.email)
     }
 
-    return {user, accessToken, refreshToken, register, login, logout, refresh}
+    return {user, accessToken, refreshToken, register, login, logout}
 
 })
