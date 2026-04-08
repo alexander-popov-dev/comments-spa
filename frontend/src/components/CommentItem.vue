@@ -12,7 +12,7 @@ const replies = ref([])
 const showReplies = ref(false)
 const showForm = ref(false)
 const formMode = ref('reply')
-const props = defineProps({comment: Object})
+const props = defineProps({comment: Object, isPreview: {type: Boolean, default: false}})
 const isOwner = computed(() => authStore.user?.username === props.comment.username)
 
 async function toggleReplies(commentId) {
@@ -107,9 +107,9 @@ function openLightbox() {
         <span>{{ comment.username }}</span>
         <span>{{ comment.email }}</span>
         <div class="btn-header">
-          <button v-if="isOwner" @click="editComment">Edit</button>
-          <button v-if="isOwner" @click="deleteComment">Delete</button>
-          <button v-if="!isOwner" @click="replyComment">Reply</button>
+          <button v-if="!isPreview && isOwner" @click="editComment">Edit</button>
+          <button v-if="!isPreview && isOwner" @click="deleteComment">Delete</button>
+          <button v-if="!isPreview && !isOwner" @click="replyComment">Reply</button>
         </div>
       </div>
       <div class="comment-content">
@@ -131,7 +131,7 @@ function openLightbox() {
       <div class="comment-footer">
         <span>{{ new Date(comment.created_at).toLocaleString() }}</span>
         <button v-if="comment.replies_count > 0" @click="toggleReplies(comment.id)" class="btn-header">
-          Show {{ comment.replies_count }} answer/s
+          Show replies ({{ comment.replies_count }})
         </button>
       </div>
     </div>

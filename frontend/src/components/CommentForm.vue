@@ -217,7 +217,7 @@ async function preview() {
           <input v-show="!file" type="file" accept=".jpg,.gif,.png,.txt" @change="onFileChange" ref="fileInputRef"/>
         </template>
       </div>
-      <CommentItem v-if="showPreview" :comment="previewComment"/>
+      <CommentItem v-if="showPreview" :comment="previewComment" :isPreview="true"/>
       <div class="actions">
         <button class="btn btn-modal" @click="showPreview ? showPreview = false : preview()">
           {{ showPreview ? 'Edit' : 'Preview' }}
