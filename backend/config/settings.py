@@ -38,11 +38,11 @@ SECRET_KEY = config("SECRET_KEY")
 DEBUG = config("DEBUG", default=False, cast=bool)
 
 if DEBUG:
-    # CELERY_TASK_ALWAYS_EAGER = True
-    # CELERY_TASK_EAGER_PROPAGATES = True
+    CELERY_TASK_ALWAYS_EAGER = True
+    CELERY_TASK_EAGER_PROPAGATES = True
     CORS_ALLOW_ALL_ORIGINS = True
 
-ALLOWED_HOSTS = [config("ALLOWED_HOSTS", default="127.0.0.1,localhost", cast=Csv())]
+ALLOWED_HOSTS = config("ALLOWED_HOSTS", default="127.0.0.1,localhost", cast=Csv())
 CSRF_TRUSTED_ORIGINS = config("CSRF_TRUSTED_ORIGINS", cast=Csv())
 
 # Application definition
