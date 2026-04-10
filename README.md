@@ -156,8 +156,8 @@ comments-spa/
 
 Available after startup:
 
-- Swagger UI: `http://localhost/api/schema/swagger-ui/`
-- ReDoc: `http://localhost/api/schema/redoc/`
+- OpenAPI Schema: `http://localhost/api/v1/schema/`
+- Swagger UI: `http://localhost/api/v1/docs/`
 
 ## Database Schema
 
