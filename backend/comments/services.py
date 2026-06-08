@@ -25,13 +25,16 @@ class CaptchaService:
         """Validate the given CAPTCHA key/value pair. Raises ValidationError on failure."""
         if not key or not value:
             raise serializers.ValidationError({"captcha": "Captcha is required."})
+
         try:
             captcha = CaptchaStore.objects.get(hashkey=key)
-            if captcha.response != value.lower().strip():
-                raise serializers.ValidationError({"captcha": "Invalid captcha."})
-            captcha.delete()
         except CaptchaStore.DoesNotExist:
             raise serializers.ValidationError({"captcha": "Invalid captcha."})
+
+        if captcha.response != value.lower().strip():
+            raise serializers.ValidationError({"captcha": "Invalid captcha."})
+
+        captcha.delete()
 
 
 class CommentService:
